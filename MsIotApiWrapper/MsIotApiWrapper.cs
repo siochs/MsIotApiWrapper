@@ -88,7 +88,8 @@ namespace MsIotApiWrapper
             this.targetUserName = targetUserName;
             this.targetPassword = targetPassword;
             this.targetBaseUri = "http://" + targetIpAddress + ":8080";
-            this.authenticationHeaderValue = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{targetUserName}:{targetPassword}")));            
+            this.authenticationHeaderValue = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{targetUserName}:{targetPassword}")));
+            this.httpMessageHandler = new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
         }
 
         /// <summary>
