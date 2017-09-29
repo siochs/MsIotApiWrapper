@@ -300,6 +300,7 @@ namespace MsIotApiWrapper
         /// <param name="app">The package that shall run on the device's startup</param>
         /// <remarks>This operation occurs in two steps: 1) Setting the app via the app's name and verification if the app was set as startup app.</remarks>
         /// <exception cref="Exception">The startup setting could not be verified, but it maybe functional.</exception>
+        /// <exception cref="Exception">The server response could not be parsed, but maybe the request was successful.</exception>
         public async Task SetDefaultStartupAppAsync(AppxPackage app)
         {
             // converts the appId to UFT8 Base64 encoded string of the string-bytes
