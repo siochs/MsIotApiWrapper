@@ -141,7 +141,7 @@ namespace MsIotApiWrapper
         /// <returns>Returns the <see cref="HttpResponseMessage"/></returns>
         private async Task<HttpResponseMessage> AuthenticatedApiRequestAsync(string apiUri, HttpMethod httpMethod, object content = null)
         {
-            using (HttpClient httpClient = new HttpClient( this.httpMessageHandler ))
+            using (HttpClient httpClient = new HttpClient( this.httpMessageHandler, false))
             {
                 httpClient.BaseAddress = new Uri(apiUri);
                 httpClient.DefaultRequestHeaders.Authorization = this.authenticationHeaderValue;
@@ -302,8 +302,8 @@ namespace MsIotApiWrapper
         {
             // converts the appId to UFT8 Base64 encoded string of the string-bytes
             string appId = Convert.ToBase64String(Encoding.UTF8.GetBytes(app.PackageRelativeId));
-            
-            // request set the startup app 
+
+            // request set the startup app             
             HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/iot/appx/default?appid=" + appId, HttpMethod.POST, new StringContent(""));
             httpResponseMessage.EnsureSuccessStatusCode();
 
