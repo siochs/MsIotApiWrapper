@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsIotApiWrapper", "MsIotApi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsIotApiWrapperTests", "MsIotApiWrapperTests\MsIotApiWrapperTests.csproj", "{FAEA11D6-58E8-4FCE-8B1C-A81AC98E05A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinIotCtl", "Samples\WinIotCtl\WinIotCtl.csproj", "{65977E32-AA99-4F86-B596-0678B6734F17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FAEA11D6-58E8-4FCE-8B1C-A81AC98E05A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAEA11D6-58E8-4FCE-8B1C-A81AC98E05A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAEA11D6-58E8-4FCE-8B1C-A81AC98E05A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65977E32-AA99-4F86-B596-0678B6734F17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65977E32-AA99-4F86-B596-0678B6734F17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65977E32-AA99-4F86-B596-0678B6734F17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65977E32-AA99-4F86-B596-0678B6734F17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
