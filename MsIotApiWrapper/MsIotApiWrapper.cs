@@ -137,14 +137,16 @@ namespace MsIotApiWrapper
         /// <remarks>The client tries HTTP-Basic-Auth credentials which were supplied when creating an instance of this class.</remarks>
         /// <param name="apiUri">The endpoint URL.</param>
         /// <param name="httpMethod">The <see cref="HttpMethod"/></param>
+        /// <param name="keepAlive">Close connection after the request was dispatched.</param>
         /// <param name="content">The content which may be submitted by a POST request.</param>
         /// <returns>Returns the <see cref="HttpResponseMessage"/></returns>
-        private async Task<HttpResponseMessage> AuthenticatedApiRequestAsync(string apiUri, HttpMethod httpMethod, object content = null)
+        private async Task<HttpResponseMessage> AuthenticatedApiRequestAsync(string apiUri, HttpMethod httpMethod, bool keepAlive, object content = null)
         {
             using (HttpClient httpClient = new HttpClient( this.httpMessageHandler, false))
             {
                 httpClient.BaseAddress = new Uri(apiUri);
                 httpClient.DefaultRequestHeaders.Authorization = this.authenticationHeaderValue;
+                if (!keepAlive) httpClient.DefaultRequestHeaders.Add("Connection", "close");
                 switch (httpMethod)
                 {
                     case HttpMethod.GET:
@@ -171,7 +173,7 @@ namespace MsIotApiWrapper
         public async Task<List<AppxPackage>> GetInstalledAppsAsync()
         {
             List<AppxPackage> packageList = new List<AppxPackage>();
-            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/appx/packagemanager/packages", HttpMethod.GET);
+            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/appx/packagemanager/packages", HttpMethod.GET, false);
             httpResponseMessage.EnsureSuccessStatusCode();
             JObject requestResultJsonObject = JObject.Parse(await httpResponseMessage.Content.ReadAsStringAsync());
             JToken installedPackages = requestResultJsonObject["InstalledPackages"];
@@ -216,7 +218,7 @@ namespace MsIotApiWrapper
         public async Task RemoveAppxPackageFromTargetAsync(AppxPackage appxPackage)
         {
             if (!appxPackage.CanUninstall) throw new Exception("MsIotApiWrapper.RemoveAppxPackageFromTarget: Package " + appxPackage.PackageName + " is marked as non-removable on the target.");
-            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/appx/packagemanager/package?package=" + appxPackage.PackageFullName, HttpMethod.DELETE);
+            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/appx/packagemanager/package?package=" + appxPackage.PackageFullName, HttpMethod.DELETE, false);
             httpResponseMessage.EnsureSuccessStatusCode();
         }
 
@@ -242,7 +244,7 @@ namespace MsIotApiWrapper
             while (stopWatch.ElapsedMilliseconds < this.SideloadSuccessTimeoutMillisecs)
             {
                 // poll for 200 status code
-                HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/app/packagemanager/state", HttpMethod.GET);
+                HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/app/packagemanager/state", HttpMethod.GET, false);
                 httpResponseMessage.EnsureSuccessStatusCode();
                 if (httpResponseMessage.StatusCode == HttpStatusCode.OK)
                 {
@@ -275,7 +277,7 @@ namespace MsIotApiWrapper
             byte[] fileData = File.ReadAllBytes(filePath);
             MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
             multipartFormDataContent.Add(new StreamContent(new MemoryStream(fileData)), "\""+fileName+"\"", "\""+ fileName + "\"");
-            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/app/packagemanager/package?package=" + fileName, HttpMethod.POST, multipartFormDataContent);
+            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/app/packagemanager/package?package=" + fileName, HttpMethod.POST, false, multipartFormDataContent);
             httpResponseMessage.EnsureSuccessStatusCode();
             JObject requestResultJsonObject = JObject.Parse(await httpResponseMessage.Content.ReadAsStringAsync());
             JToken reason = requestResultJsonObject["Reason"];
@@ -304,11 +306,11 @@ namespace MsIotApiWrapper
             string appId = Convert.ToBase64String(Encoding.UTF8.GetBytes(app.PackageRelativeId));
 
             // request set the startup app             
-            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/iot/appx/default?appid=" + appId, HttpMethod.POST, new StringContent(""));
+            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/iot/appx/default?appid=" + appId, HttpMethod.POST, false, new StringContent(""));
             httpResponseMessage.EnsureSuccessStatusCode();
 
             // test if the app is now really set as startup
-            httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/iot/appx/default", HttpMethod.GET);
+            httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/iot/appx/default", HttpMethod.GET, false);
             httpResponseMessage.EnsureSuccessStatusCode();
             JObject requestResultJsonObject = JObject.Parse(await httpResponseMessage.Content.ReadAsStringAsync());            
             JToken appStartupInfo;
@@ -345,7 +347,7 @@ namespace MsIotApiWrapper
         /// </summary>
         public async Task RebootTargetAsync()
         {
-            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/control/restart", HttpMethod.POST, new StringContent(""));
+            HttpResponseMessage httpResponseMessage = await this.AuthenticatedApiRequestAsync(this.targetBaseUri + "/api/control/restart", HttpMethod.POST, false, new StringContent(""));
             httpResponseMessage.EnsureSuccessStatusCode();
         }
 
